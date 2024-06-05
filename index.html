@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple To-Do List App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Simple To-Do List App</h1>
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    loadTasks();
+});
+function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const taskList = document.getElementById("taskList");
+    taskList.innerHTML = "";
+    tasks.forEach(task => {
+    const li = document.createElement("li");
+        li.innerHTML = `<span>${task.title}</span>
+                        <button onclick="editTask(${task.id})">Edit</button>
+                        <button onclick="deleteTask(${task.id})">Delete</button>
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleCompletion(${task.id}, this.checked)">`;
+        taskList.appendChild(li);
+    });
+}
+function addTask() {
+    const taskInput = document.getElementById("taskInput");
+    const taskTitle = taskInput.value.trim();
+    if (taskTitle !== "") {
+        const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        const newTask = {
+            id: tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 1,
+            title: taskTitle,
+            completed: false
+        };
+        tasks.push(newTask);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        taskInput.value = "";
+        loadTasks();
+    }
+}
+function editTask(id) {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const task = tasks.find(task => task.id === id);
+    const newTitle = prompt("Edit Task Title:", task.title);
+    if (newTitle !== null && newTitle.trim() !== "") {
+        task.title = newTitle.trim();
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        loadTasks();
+    }
+}
+function deleteTask(id) {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const filteredTasks = tasks.filter(task => task.id !== id);
+    localStorage.setItem("tasks", JSON.stringify(filteredTasks));
+    loadTasks();
+}
+function toggleCompletion(id, checked) {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const task = tasks.find(task => task.id === id);
+    task.completed = checked;
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    loadTasks();
+}
+</script>
+</body>
+</html>
